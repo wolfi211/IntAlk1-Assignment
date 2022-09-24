@@ -1,0 +1,77 @@
+﻿@model PagedList<IntAlk1_Assignment.Models.OwnerModel>
+
+<h2 class="text-center mt-2">List of Owners</h2>
+@if (ViewBag.Success != null) 
+{
+    <div class="row d-flex justify-content-center">
+        <div class="col-3 alert alert-dismissible alert-success">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            @Html.Raw(ViewBag.Success)
+        </div>
+    </div>
+}
+@if (ViewBag.Failed != null) 
+{
+    <div class="row d-flex justify-content-center">
+        <div class="col-3 alert alert-dismissible alert-danger">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            @Html.Raw(ViewBag.Failed)
+        </div>
+    </div>
+}
+<form asp-action="OwnerList">
+    <div class="row mx-auto mb-2" style="width:93%;">
+        <div class="col-3 d-grid">
+            <a asp-action="CreateOwnerForm" class="btn btn-primary">Create New</a>
+        </div>
+        <div class="col form-group d-grid">
+            <input name="searchTerm" value=@(ViewBag.CurrentFilter as string) class="form-control" />
+        </div>
+        <div class="col-3 form-group d-grid">
+            <input type="submit" value="Search" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
+
+<div class="container d-flex flex-wrap justify-content-center">
+    @foreach (var item in Model)
+    {
+        <div class="card border-primary mx-1 my-1" style="width: 18rem;">
+            <div class="card-header d-flex justify-content-center align-items-center">
+                <h5 class="card-title text-center my-auto">@Html.DisplayFor(m => item.Name)</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted text-center">@item.Properties.Count properties</p>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col">
+                        <div class="d-grid">
+                            <a href="/registry/DetailsOwner/@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="d-grid">
+                            <a href="/registry/EditOwner/@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="d-grid">
+                            <a href="/registry/DeleteOwner/@item.Id" class="btn btn-sm btn-outline-warning">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="row d-flex justify-content-center">
+    <div class="col-4 btn btn-primary @(Model.HasPreviousPage ? "" : "disabled")">
+        <a class="page-link" href="/registry/OwnerList?page=@(Model.PageNumber - 1)&currentFilter=@ViewBag.CurrentFilter">&laquo;</a>
+    </div>
+    
+    <div class="col-4 btn btn-primary @(Model.HasNextPage ? "" : "disabled")">
+        <a class="page-link" href="/registry/OwnerList?page=@(Model.PageNumber + 1)&currentFilter=@ViewBag.CurrentFilter">&raquo;</a>
+    </div>
+</div>

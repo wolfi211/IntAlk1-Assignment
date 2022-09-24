@@ -1,0 +1,45 @@
+﻿@model IntAlk1_Assignment.Models.TenantModel
+
+<div class="container mt-4">
+    <div class="text-center">
+        <h3>Tenant</h3>
+    </div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+</div>
+<hr />
+<div class="container text-center">
+    <h6>Owner's Properties</h6>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Address</th>
+                <th scope="col">Owner</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (IntAlk1_Assignment.Models.PropertyModel item in Model.Properties)
+            {
+                <tr>
+                    <td scope="row"><a href="/registry/DetailsProperty?Id=@item.Id">@item.Address</a></td>
+                    <td><a href="/registry/DetailsOwner?Id=@item.Owner.Id">@(item.Owner != null ? item.Owner.Name : "No Owner")</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="row d-flex justify-content-center">
+    <div class="col-3 d-grid">
+        <a asp-action="EditTenant" class="btn btn-secondary">Edit</a>
+    </div>
+    <div class="col-3 d-grid">
+        <a asp-action="TenantList" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
