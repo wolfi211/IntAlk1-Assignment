@@ -145,7 +145,7 @@ namespace IntAlk1_Assignment.Controllers
          * berlonkent es ingatlanonkent?
          * ket lehetoseg:
          * 1. hozzacsapjuk a berlok es az ingatlanok listajahoz, ott megjelenitve, ehhez kell ingatlan reszletezo
-         * 2. hatralekok listazasa rendezve
+         * 2. hatralekok listazasa rendezve berlore es ingatlanra egyarant, e fele a megoldas fele hajlok
          */
 
         public IActionResult RentList(int? page)
