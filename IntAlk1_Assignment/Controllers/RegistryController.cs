@@ -1,7 +1,6 @@
 ﻿using IntAlk1_Assignment.Models;
 using IntAlk1_Assignment.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using PagedList;
 
 namespace IntAlk1_Assignment.Controllers
@@ -20,42 +19,6 @@ namespace IntAlk1_Assignment.Controllers
 
         #region LIST
 
-        public IActionResult PropertyList(int? page, string? searchTerm, string? currentFilter)
-        {
-            int pageSize = 12;
-
-            if (searchTerm != null)
-            {
-                page = 1;
-            }
-            else
-            {
-                searchTerm = currentFilter;
-            }
-
-            ViewBag.CurrentFilter = searchTerm;
-
-            List<PropertyModel> propertyModels = registryDAO.GetProperties();
-
-            if (!String.IsNullOrEmpty(searchTerm))
-            {
-                propertyModels = registryDAO.SearchProperties(searchTerm);
-            }
-
-            if (TempData["Success"] != null)
-            {
-                ViewBag.Success = Convert.ToString(TempData["Success"]);
-                TempData.Remove("Success");
-            }
-            if (TempData["Failed"] != null)
-            {
-                ViewBag.Failed = Convert.ToString(TempData["Failed"]);
-                TempData.Remove("Failed");
-            }
-
-            return View(propertyModels.ToPagedList(page ?? 1, pageSize));
-        }
-
         public IActionResult OwnerList(int? page, string? searchTerm, string? currentFilter)
         {
             int pageSize = 12;
@@ -71,11 +34,15 @@ namespace IntAlk1_Assignment.Controllers
 
             ViewBag.CurrentFilter = searchTerm;
 
-            List<OwnerModel> ownerModels = registryDAO.GetOwners();
+            List<OwnerModel> ownerModels;
 
             if (!String.IsNullOrEmpty(searchTerm))
             {
                 ownerModels = registryDAO.SearchOwners(searchTerm);
+            }
+            else
+            {
+                ownerModels = registryDAO.GetOwners();
             }
 
             if (TempData["Success"] != null)
@@ -107,11 +74,15 @@ namespace IntAlk1_Assignment.Controllers
 
             ViewBag.CurrentFilter = searchTerm;
 
-            List<TenantModel> tenantModels = registryDAO.GetTenants();
+            List<TenantModel> tenantModels;
 
             if (!String.IsNullOrEmpty(searchTerm))
             {
                 tenantModels = registryDAO.SearchTenants(searchTerm);
+            }
+            else
+            {
+                tenantModels = registryDAO.GetTenants();
             }
 
             if (TempData["Success"] != null)
@@ -126,6 +97,75 @@ namespace IntAlk1_Assignment.Controllers
             }
 
             return View(tenantModels.ToPagedList(page ?? 1, pageSize));
+        }
+
+        public IActionResult PropertyList(int? page, string? searchTerm, string? currentFilter)
+        {
+            int pageSize = 15;
+
+            if (searchTerm != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchTerm = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchTerm;
+
+            List<PropertyModel> propertyModels;
+
+            if (!String.IsNullOrEmpty(searchTerm))
+            {
+                propertyModels = registryDAO.SearchProperties(searchTerm);
+            }
+            else
+            {
+                propertyModels = registryDAO.GetProperties();
+            }
+
+            if (TempData["Success"] != null)
+            {
+                ViewBag.Success = Convert.ToString(TempData["Success"]);
+                TempData.Remove("Success");
+            }
+            if (TempData["Failed"] != null)
+            {
+                ViewBag.Failed = Convert.ToString(TempData["Failed"]);
+                TempData.Remove("Failed");
+            }
+
+            return View(propertyModels.ToPagedList(page ?? 1, pageSize));
+        }
+
+        /*
+         * hatralekok berlonkent es ingatlanonkent
+         * ertelmezve: olyan befizetes ami meg nem lett teljesitve
+         * berlonkent es ingatlanonkent?
+         * ket lehetoseg:
+         * 1. hozzacsapjuk a berlok es az ingatlanok listajahoz, ott megjelenitve, ehhez kell ingatlan reszletezo
+         * 2. hatralekok listazasa rendezve
+         */
+
+        public IActionResult RentList(int? page)
+        {
+            int pageSize = 15;
+
+            List<RentModel> rentModels = registryDAO.GetRents();
+
+            if (TempData["Success"] != null)
+            {
+                ViewBag.Success = Convert.ToString(TempData["Success"]);
+                TempData.Remove("Success");
+            }
+            if (TempData["Failed"] != null)
+            {
+                ViewBag.Failed = Convert.ToString(TempData["Failed"]);
+                TempData.Remove("Failed");
+            }
+
+            return View(rentModels.ToPagedList(page ?? 1, pageSize));
         }
 
         #endregion
@@ -168,7 +208,7 @@ namespace IntAlk1_Assignment.Controllers
                 ViewBag.Failed = "<strong>Failed!</strong> Tenant creation failed for some reason!";
                 return View("CreateTenantForm");
             }
-            TempData["Success"] = "<strong>Success!</strong> Owner creation successfull.";
+            TempData["Success"] = "<strong>Success!</strong> Tenant creation successfull.";
             return RedirectToAction("TenantList");
         }
 
@@ -184,7 +224,20 @@ namespace IntAlk1_Assignment.Controllers
 
         public IActionResult ProcessPropertyCreation(PropertyModel property)
         {
-            throw new NotImplementedException();
+            if (property.OwnerId == 0 && property.TenantId != 0)
+            {
+                ViewBag.Failed = "<strong>Failed! </strong>You can't add a Property with a Tenant but without an Owner!";
+                ViewBag.OwnerList = registryDAO.GetOwners();
+                ViewBag.TenantList = registryDAO.GetTenants();
+                return View("CreatePropertyForm", property);
+            }
+            if (registryDAO.InsertProperty(property) < 0)
+            {
+                ViewBag.Failed = "<strong>Failed!</strong> Property creation failed for some reason!";
+                return View("CreatePropertyForm");
+            }
+            TempData["Success"] = "<strong>Success!</strong> Property creation successfull.";
+            return RedirectToAction("PropertyList");
         }
 
         #endregion
@@ -302,13 +355,57 @@ namespace IntAlk1_Assignment.Controllers
         {
             if (registryDAO.UpdateTenant(tenant) < 0)
             {
-                TempData["Failed"] = "<strong>Failed!</strong> The owner was not updated.";
+                TempData["Failed"] = "<strong>Failed!</strong> The tenant was not updated.";
             }
             else
             {
-                TempData["Success"] = "<strong>Success!</strong> The owner was successfully updated.";
+                TempData["Success"] = "<strong>Success!</strong> The tenant was successfully updated.";
             }
             return RedirectToAction("TenantList");
+        }
+
+        //PROPERTY
+
+        public IActionResult EditProperty(int id)
+        {
+            PropertyModel property = registryDAO.GetPropertyById(id);
+            if (property.Owner != null)
+            {
+                property.OwnerId = property.Owner.Id;
+            }
+            if (property.Tenant != null)
+            {
+                property.TenantId = property.Tenant.Id;
+            }
+            return RedirectToAction("EditPropertyForm", property);
+        }
+
+        public IActionResult EditPropertyForm(PropertyModel property)
+        {
+            ViewBag.OwnerList = registryDAO.GetOwners();
+            ViewBag.TenantList = registryDAO.GetTenants();
+
+            return View(property);
+        }
+
+        public IActionResult EditPropertyProcess(PropertyModel property)
+        {
+            if(property.OwnerId == 0 && property.TenantId != 0)
+            {
+                ViewBag.Failed = "<strong>Failed! </strong>You can't delete the Owner and have a Tenant still renting the property!";
+                ViewBag.OwnerList = registryDAO.GetOwners();
+                ViewBag.TenantList = registryDAO.GetTenants();
+                return View("EditPropertyForm", property);
+            }
+            if (registryDAO.UpdateProperty(property) < 0)
+            {
+                TempData["Failed"] = "<strong>Failed!</strong> The property was not updated.";
+            }
+            else
+            {
+                TempData["Success"] = "<strong>Success!</strong> The property was successfully updated.";
+            }
+            return RedirectToAction("PropertyList");
         }
 
         #endregion

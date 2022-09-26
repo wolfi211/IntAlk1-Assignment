@@ -11,6 +11,8 @@ namespace IntAlk1_Assignment.Services
          * Get EVERYthing from a table
          *********************************************************************/
 
+        #region GET
+
         public List<OwnerModel> GetOwners()
         {
             List<OwnerModel> owners = new();
@@ -169,9 +171,58 @@ namespace IntAlk1_Assignment.Services
             return properties;
         }
 
+        public List<RentModel> GetRents()
+        {
+            var rents = new List<RentModel>();
+
+            string sqlStatement = "select dbo.Rents.Year, dbo.Rents.Month, dbo.Rents.Property as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Rents.Tenant as TenantId, dbo.Tenants.Name as TenantName, dbo.Rents.Rent, dbo.Rents.Payed, dbo.Rents.Done " +
+                "from ((dbo.Rents " +
+                "inner join dbo.Properties on dbo.Rents.Property = dbo.Properties.Id) " +
+                "inner join dbo.Tenants on dbo.Rents.Tenant = dbo.Tenants.Id) " +
+                "where dbo.Rents.Done = 0";
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                SqlCommand cmd = new(sqlStatement, connection);
+
+                try
+                {
+                    connection.Open();
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        rents.Add(new RentModel
+                        {
+                            Year = (int)reader["Year"],
+                            Month = (int)reader["Month"],
+                            PropertyId = (int)reader["PropertyId"],
+                            PropertyAddress = (string)reader["PropertyAddress"],
+                            TenantId = (int)reader["TenantId"],
+                            TenantName = (string)reader["TenantName"],
+                            Rent = (int)reader["Rent"],
+                            Payed = (int)reader["Payed"],
+                            IsPayed = (bool)reader["Done"]
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return rents;
+        }
+
+        #endregion
+
         /*********************************************************************
          * Get Things By ID
          *********************************************************************/
+
+        #region GET_BY_ID
 
         public OwnerModel? GetOwnerById(int Id)
         {
@@ -293,8 +344,8 @@ namespace IntAlk1_Assignment.Services
 
             string sqlStatement = "select dbo.Properties.Id, dbo.Properties.Address, dbo.Properties.Owner as OwnerId, " +
                                   "dbo.Owners.Name as OwnerName, dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, dbo.Properties.Rent " +
-                                  "from ((dbo.Properties" +
-                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id)" +
+                                  "from ((dbo.Properties " +
+                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
                                   "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
                                   "where dbo.Properties.Id = @PropertyId;";
 
@@ -308,11 +359,11 @@ namespace IntAlk1_Assignment.Services
                     connection.Open();
 
                     SqlDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
+                    if (reader.Read())
                     {
                         property = new PropertyModel
                         {
-                            Id = (int)reader["AddressId"],
+                            Id = (int)reader["Id"],
                             Address = (string)reader["Address"],
                             Owner = new OwnerModel
                             {
@@ -337,9 +388,13 @@ namespace IntAlk1_Assignment.Services
             return property;
         }
 
+        #endregion
+
         /*********************************************************************
          * Search For Things
          *********************************************************************/
+
+        #region SEARCH
 
         public List<OwnerModel> SearchOwners(string searchTerm)
         {
@@ -505,9 +560,14 @@ namespace IntAlk1_Assignment.Services
             return properties;
         }
 
+        #endregion
+
         /*********************************************************************
          * Insert new things into DB
          *********************************************************************/
+
+        #region INSERT
+
         public int InsertOwner(OwnerModel owner)
         {
             string sqlStatement = "INSERT INTO dbo.Owners (Name) VALUES (@Name)";
@@ -565,8 +625,8 @@ namespace IntAlk1_Assignment.Services
             {
                 SqlCommand cmd = new(sqlStatement, connection);
                 cmd.Parameters.AddWithValue("@Address", property.Address);
-                cmd.Parameters.AddWithValue("@Owner", property.Owner);
-                cmd.Parameters.AddWithValue("@Tenant", property.Tenant);
+                cmd.Parameters.AddWithValue("@Owner", property.OwnerId);
+                cmd.Parameters.AddWithValue("@Tenant", property.TenantId);
                 cmd.Parameters.AddWithValue("@Rent", property.Rent);
 
                 try
@@ -583,9 +643,14 @@ namespace IntAlk1_Assignment.Services
             return newId;
         }
 
+        #endregion
+
         /*********************************************************************
          * Modify already existing things
          *********************************************************************/
+
+        #region UPDATE
+
         public int UpdateOwner(OwnerModel owner)
         {
             int reply = -1;
@@ -646,8 +711,8 @@ namespace IntAlk1_Assignment.Services
             {
                 SqlCommand cmd = new(sqlStatement, connection);
                 cmd.Parameters.AddWithValue("@Address", property.Address);
-                cmd.Parameters.AddWithValue("@Owner", property.Owner);
-                cmd.Parameters.AddWithValue("@Tenant", property.Tenant);
+                cmd.Parameters.AddWithValue("@Owner", property.OwnerId);
+                cmd.Parameters.AddWithValue("@Tenant", property.TenantId);
                 cmd.Parameters.AddWithValue("@Rent", property.Rent);
                 cmd.Parameters.AddWithValue("@Id", property.Id);
 
@@ -665,14 +730,18 @@ namespace IntAlk1_Assignment.Services
             return reply;
         }
 
+        #endregion
+
         /*********************************************************************
          * Delete things
          *********************************************************************/
 
+        #region DELETE
+
         public int DeleteOwner(int Id)
         {
             int reply = -1;
-            string sqlStatement = "SELECT * FROM dbo.Properties WHERE Owner = @Id";
+            string sqlStatement = "DELETE FROM dbo.Owners WHERE Id = @Id";
 
             using (SqlConnection connection = new(connectionString))
             {
@@ -683,16 +752,7 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
 
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (!reader.Read())
-                    {
-                        reader.Close();
-                        sqlStatement = "DELETE FROM dbo.Owners WHERE Id = @Id";
-                        cmd = new(sqlStatement, connection);
-                        cmd.Parameters.AddWithValue("@Id", Id);
-
-                        reply = Convert.ToInt32(cmd.ExecuteScalar());
-                    }
+                    reply = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 catch (Exception ex)
                 {
@@ -705,7 +765,7 @@ namespace IntAlk1_Assignment.Services
         public int DeleteTenant(int Id)
         {
             int reply = -1;
-            string sqlStatement = "SELECT * FROM dbo.Properties WHERE Tenant = @Id";
+            string sqlStatement = "DELETE FROM dbo.Tenants WHERE Id = @Id";
 
             using (SqlConnection connection = new(connectionString))
             {
@@ -716,16 +776,7 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
 
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (!reader.Read())
-                    {
-                        reader.Close();
-                        sqlStatement = "DELETE FROM dbo.Tenants WHERE Id = @Id";
-                        cmd = new(sqlStatement, connection);
-                        cmd.Parameters.AddWithValue("@Id", Id);
-
-                        reply = Convert.ToInt32(cmd.ExecuteScalar());
-                    }
+                    reply = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 catch (Exception ex)
                 {
@@ -735,10 +786,30 @@ namespace IntAlk1_Assignment.Services
             return reply;
         }
 
-        //not implemented
         public int DeleteProperty(int Id)
         {
-            throw new NotImplementedException();
+            int reply = -1;
+            string sqlStatement = "DELETE FROM dbo.Properties WHERE Id = @Id";
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                SqlCommand cmd = new(sqlStatement, connection);
+                cmd.Parameters.AddWithValue("@Id", Id);
+
+                try
+                {
+                    connection.Open();
+
+                    reply = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return reply;
         }
+
+        #endregion
     }
 }

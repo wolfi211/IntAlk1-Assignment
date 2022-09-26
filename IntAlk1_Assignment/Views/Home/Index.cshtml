@@ -2,43 +2,59 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="container text-center">
-    <h2 class="display-2">Ingatlan Nyílvántartó Rendszer</h2>
+<div class="container text-center mt-2">
+    <h3 class="display-5"><strong>Ingatlan Nyílvántartó Rendszer</strong></h3>
     <h4 class="text-muted">Készítette: Wolf Dániel (V4CRMW)</h4>
 </div>
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center mt-5 text-center">
     <div>
         <div>
-            <h5>To Do List</h5>
+            <h3>To Do List</h3>
         </div>
-        <div>
-            <p>Adatbazis elkeszitese</p>
-            <p><strong>Funkciok</strong></p>
-            <p>ingatlanok <span>felvitel</span> / <span>modositas</span> / <span>torles</span></p>
-            <p><strong class="text-success">tulajdonosok </strong><span class="text-success">felvitel</span> / <span class="text-success">modositas</span> / <span class="text-success">torles</span></p>
-            <p><strong class="text-success">berlok </strong><span class="text-success">felvitel</span> / <span class="text-success">modositas</span> / <span class="text-success">torles</span></p>
-            <p>berleti dij fizetesi kotelezettseg keletkezik minden elsejen, <span>befizetes felviheto</span></p>
-            <p><strong>Feladatok</strong></p>
-            <p class="text-success">tablatervek</p>
-            <p>funkciok megvalositasa</p>
-            <p>lekerdezesek</p>
-            <ul>
-                <li>hatralekok(berlonkent es ingatlanonkent)</li>
-                <li class="text-success">berlok listaja (ingatlannal es tulajdonossal)</li>
-                <li>ingatlanok listaja (berlovel es tulajdonossal)</li>
-                <li class="text-success">tulajdonosok listaja (ingatlannal es berlovel)</li>
-            </ul>
-            <p><strong>Egyeb</strong></p>
-            <p class="text-success">Egy tulajdonosnak tobb ingatlana lehet</p>
-            <p class="text-success">Egy berlo tobb ingatlant berelhet</p>
-            <p>A modositasokat naplozni kell</p>
-            <p><strong>Plusz Pontokert</strong></p>
-            <p>AJAX megoldas</p>
-            <p>Valtozasnaplo triggerrel megoldva</p>
-            <p>CSS</p>
-            <p>Oldalasitas a lekerdezeseken: <span class="text-success">Tulaj</span>/<span class="text-success">Berlo</span>/<span class="">Ingatlan</span></p>
-            <p>Kereses Funkcio implementalasa a lekerdezeseken: <span class="text-success">Tulaj</span>/<span class="text-success">Berlo</span>/<span class="">Ingatlan</span></p>
-            <p class="text-warning">nem lehet egy ingatlannak berloje ha nincs tulajdonosa</p>
+        <div class="border border-primary">
+            <div class="my-0 py-2 px-2" style="background-color: #DED6EA">
+                <h5 class="text-success">Adattablak</h5>
+                <p class="text-success">Ingatlanok</p>
+                <p class="text-success">Tulajdonosok</p>
+                <p class="text-success">Berlok</p>
+                <p class="text-success">Berleti Dijak kifizetve/tartozik</p>
+            </div>
+            <div class="my-0 py-2 px-2" style="background-color: #EEE9F6">
+                <h5><strong>Funkciok</strong></h5>
+                <p class="text-success">Torles sehol nem lehetseges, ha elo adata van hozza kapcsolodva</p>
+                <p><strong class="text-success">ingatlanok </strong><span class="text-success">felvitel</span> / <span class="text-success">modositas</span> / <span class="text-success">torles</span></p>
+                <p><strong class="text-success">tulajdonosok </strong><span class="text-success">felvitel</span> / <span class="text-success">modositas</span> / <span class="text-success">torles</span></p>
+                <p><strong class="text-success">berlok </strong><span class="text-success">felvitel</span> / <span class="text-success">modositas</span> / <span class="text-success">torles</span></p>
+                <p>berleti dij fizetesi kotelezettseg keletkezik minden elsejen, <span>befizetes felviheto</span></p>
+            </div>
+            <div class="my-0 py-2 px-2" style="background-color: #DED6EA">
+                <h5><strong>Feladatok</strong></h5>
+                <p class="text-success">tablatervek</p>
+                <p>funkciok megvalositasa</p>
+                <p><strong>Lekerdezesek</strong></p>
+                <p>hatralekok (berlonkent es ingatlanonkent)</p>
+                <p class="text-success">berlok listaja (ingatlannal es tulajdonossal)</p>
+                <p class="text-success">ingatlanok listaja (berlovel es tulajdonossal)</p>
+                <p class="text-success">tulajdonosok listaja (ingatlannal es berlovel)</p>
+            </div>
+            <div class="my-0 py-2 px-2" style="background-color: #EEE9F6">
+                <h5><strong>Egyeb</strong></h5>
+                <p class="text-success">Egy tulajdonosnak tobb ingatlana lehet</p>
+                <p class="text-success">Egy berlo tobb ingatlant berelhet</p>
+                <p>A modositasokat naplozni kell</p>
+            </div>
+            <div class="my-0 py-2 px-2" style="background-color: #DED6EA">
+                <h5><strong>Plusz Pontokert</strong></h5>
+                <p>AJAX megoldas</p>
+                <p>Valtozasnaplo triggerrel megoldva</p>
+                <p>CSS</p>
+            </div>
+            <div class="my-0 py-2 px-2" style="background-color: #EEE9F6">
+                <h5><strong>Egyeb Egyeni problemak es celkituzesek</strong></h5>
+                <p><strong class="text-success">Oldalasitas: </strong><span class="text-success">Tulaj</span> / <span class="text-success">Berlo</span> / <span class="text-success">Ingatlan</span></p>
+                <p><strong class="text-success">Kereses Funkcio: </strong><span class="text-success">Tulaj</span> / <span class="text-success">Berlo</span> / <span class="text-success">Ingatlan</span></p>
+                <p class="text-success">nem lehet egy ingatlannak berloje ha nincs tulajdonosa</p>
+            </div>
         </div>
     </div>
 </div>

@@ -5,7 +5,7 @@
     OwnerList.Add(new SelectListItem { Text = "None", Value = "0" });
     foreach (OwnerModel o in ViewBag.OwnerList)
     {
-        if (Model != null && o.Id == Model.OwnerId)
+        if (o.Id == Model.OwnerId)
         {
             OwnerList.Add(new SelectListItem { Text = o.Name, Value = o.Id.ToString(), Selected = true });
         }
@@ -19,7 +19,7 @@
     TenantList.Add(new SelectListItem { Text = "None", Value = "0" });
     foreach (TenantModel t in ViewBag.TenantList)
     {
-        if (Model != null && t.Id == Model.TenantId)
+        if (t.Id == Model.TenantId)
         {
             TenantList.Add(new SelectListItem { Text = t.Name, Value = t.Id.ToString(), Selected = true });
         }
@@ -29,47 +29,50 @@
         }
     }
 }
-
 @if (ViewBag.Failed != null)
 {
     <div class="row d-flex justify-content-center">
-        <div class="col-3 alert alert-dismissible alert-danger">
+        <div class="col-4 alert alert-dismissible alert-danger">
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             @Html.Raw(ViewBag.Failed)
         </div>
     </div>
 }
-
-<div class="row justify-content-center mt-2">
-    <div class="col-md-4">
-        <h2>Create New Property</h2>
+<div class="row">
+    <div class="col-md-4 mx-auto">
+        <h4>Edit Property</h4>
         <hr />
-        <form asp-action="ProcessPropertyCreation">
+        <form asp-action="EditPropertyProcess">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group my-2">
+            <div class="form-group d-none">
+                <label asp-for="Id" class="control-label"></label>
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Address" class="control-label"></label>
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-group my-2">
+            <div class="form-group">
                 <label asp-for="OwnerId" class="control-label"></label>
                 @Html.DropDownListFor(m => m.OwnerId, OwnerList)
             </div>
-            <div class="form-group my-2">
+            <div class="form-group">
                 <label asp-for="TenantId" class="control-label"></label>
                 @Html.DropDownListFor(m => m.TenantId, TenantList)
             </div>
-            <div class="form-group my-2">
+            <div class="form-group">
                 <label asp-for="Rent" class="control-label"></label>
                 <input asp-for="Rent" class="form-control" />
                 <span asp-validation-for="Rent" class="text-danger"></span>
             </div>
-            <div class="form-group text-center my-2">
-                <input type="submit" value="Create" class="btn btn-primary btn-lg" />
+            <div class="form-group d-grid">
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
-        <div class="text-center my-2">
-            <a asp-action="Index" class="btn btn-secondary btn-sm">Back to List</a>
+        <div class="d-grid">
+            <a asp-action="PropertyList" class="btn btn-secondary btn-sm">Back to List</a>
         </div>
     </div>
 </div>
