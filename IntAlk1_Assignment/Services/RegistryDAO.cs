@@ -516,9 +516,9 @@ namespace IntAlk1_Assignment.Services
 
             string sqlStatement = "select dbo.Properties.Id, dbo.Properties.Address, dbo.Properties.Owner as OwnerId, " +
                                   "dbo.Owners.Name as OwnerName, dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, dbo.Properties.Rent " +
-                                  "from ((dbo.Properties" +
-                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id)" +
-                                  "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id)" +
+                                  "from ((dbo.Properties " +
+                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                                  "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
                                   "where dbo.Properties.Address like @SearchTerm";
 
             using (SqlConnection connection = new(connectionString))
@@ -535,7 +535,7 @@ namespace IntAlk1_Assignment.Services
                     {
                         properties.Add(new PropertyModel
                         {
-                            Id = (int)reader["AddressId"],
+                            Id = (int)reader["Id"],
                             Address = (string)reader["Address"],
                             Owner = new OwnerModel
                             {
