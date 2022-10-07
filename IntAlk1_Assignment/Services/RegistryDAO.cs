@@ -1011,6 +1011,25 @@ namespace IntAlk1_Assignment.Services
             return reply;
         }
 
+        public void DeleteAllRent()
+        {
+            string sqlStatement = "delete from dbo.Rents";
+            using (SqlConnection connection = new(connectionString))
+            {
+                SqlCommand cmd = new(sqlStatement, connection);
+
+                try
+                {
+                    connection.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
         #endregion
 
 

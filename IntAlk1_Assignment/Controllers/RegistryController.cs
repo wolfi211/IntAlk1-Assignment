@@ -329,6 +329,26 @@ namespace IntAlk1_Assignment.Controllers
             return RedirectToAction("PropertyList");
         }
 
+        public IActionResult DeleteRent(int year, int month, int property)
+        {
+            if (registryDAO.DeleteRent(year, month, property) > 0)
+            {
+                TempData["Success"] = "<strong>Success!</strong> The rent was successfully deleted";
+                
+            }
+            else
+            {
+                TempData["Failed"] = "<strong>Failed!</strong>";
+            }
+            return RedirectToAction("RentListByTenants");
+        }
+
+        public IActionResult DeleteAllRent()
+        {
+            registryDAO.DeleteAllRent();
+            return RedirectToAction("Index", "Home");
+        }
+
         #endregion
 
         /*********************************************************************

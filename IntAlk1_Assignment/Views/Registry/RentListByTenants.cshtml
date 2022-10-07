@@ -1,5 +1,22 @@
 ﻿@model PagedList<IntAlk1_Assignment.Models.RentModel>
-
+@if (ViewBag.Success != null)
+{
+    <div class="row d-flex justify-content-center">
+        <div class="col-3 alert alert-dismissible alert-success">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            @Html.Raw(ViewBag.Success)
+        </div>
+    </div>
+}
+@if (ViewBag.Failed != null)
+{
+    <div class="row d-flex justify-content-center">
+        <div class="col-3 alert alert-dismissible alert-danger">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            @Html.Raw(ViewBag.Failed)
+        </div>
+    </div>
+}
 <table class="table border border-2 border-top-0 border-bottom-0 border-primary mt-2">
     <thead>
         <tr>
