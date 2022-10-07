@@ -1,0 +1,75 @@
+﻿@model PagedList<IntAlk1_Assignment.Models.RentModel>
+
+<table class="table border border-2 border-top-0 border-bottom-0 border-primary mt-2">
+    <thead>
+        <tr>
+            <th>
+                Tenant
+            </th>
+            <th>
+                Address
+            </th>
+            <th>
+                Date
+            </th>
+            <th>
+                Rent ($)
+            </th>
+            <th>
+                Payed ($)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @{
+            var currentTenant = 0;
+            var i = 0;
+            @foreach (var item in Model) {
+                if(item.TenantId != currentTenant) {
+                    currentTenant = item.TenantId;
+                    i++;
+                    <tr class ="@(i % 2 == 0 ? "table-secondary" : "table-primary")">
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TenantName)
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                }
+                <tr class="@(i % 2 == 0 ? "table-secondary" : "table-primary")">
+                    <td></td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PropertyAddress)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Year).
+                        @Html.DisplayFor(modelItem => item.Month).
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Owed)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Payed)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Record Payment", "RecordPayment", new { year = item.Year, month = item.Month, property = item.PropertyId })
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+<div class="row d-flex justify-content-center">
+    <div class="col-4 btn btn-primary @(Model.HasPreviousPage ? "" : "disabled")">
+        <a class="page-link" href="/registry/RentListByTenants?page=@(Model.PageNumber - 1)">&laquo;</a>
+    </div>
+
+    <div class="col-4 btn btn-primary @(Model.HasNextPage ? "" : "disabled")">
+        <a class="page-link" href="/registry/RentListByTenants?page=@(Model.PageNumber + 1)">&raquo;</a>
+    </div>
+</div>

@@ -139,20 +139,35 @@ namespace IntAlk1_Assignment.Controllers
             return View(propertyModels.ToPagedList(page ?? 1, pageSize));
         }
 
-        /*
-         * hatralekok berlonkent es ingatlanonkent
-         * ertelmezve: olyan befizetes ami meg nem lett teljesitve
-         * berlonkent es ingatlanonkent?
-         * ket lehetoseg:
-         * 1. hozzacsapjuk a berlok es az ingatlanok listajahoz, ott megjelenitve, ehhez kell ingatlan reszletezo
-         * 2. hatralekok listazasa rendezve berlore es ingatlanra egyarant, e fele a megoldas fele hajlok
-         */
+        public IActionResult RentListByProperties(int? page)
+        {
+            int pageSize = 17;
 
-        public IActionResult RentList(int? page)
+            List<RentModel> rentModels = registryDAO.GetRents();
+
+            rentModels.Sort((x, y) => string.Compare(x.PropertyAddress, y.PropertyAddress));
+
+            if (TempData["Success"] != null)
+            {
+                ViewBag.Success = Convert.ToString(TempData["Success"]);
+                TempData.Remove("Success");
+            }
+            if (TempData["Failed"] != null)
+            {
+                ViewBag.Failed = Convert.ToString(TempData["Failed"]);
+                TempData.Remove("Failed");
+            }
+
+            return View(rentModels.ToPagedList(page ?? 1, pageSize));
+        }
+
+        public IActionResult RentListByTenants(int? page)
         {
             int pageSize = 15;
 
             List<RentModel> rentModels = registryDAO.GetRents();
+
+            rentModels.Sort((x, y) => string.Compare(x.TenantName, y.TenantName));
 
             if (TempData["Success"] != null)
             {
@@ -238,6 +253,15 @@ namespace IntAlk1_Assignment.Controllers
             }
             TempData["Success"] = "<strong>Success!</strong> Property creation successfull.";
             return RedirectToAction("PropertyList");
+        }
+
+        //RENT
+
+        public IActionResult SimulateFirstOfMonth()
+        {
+            registryDAO.CreateObligationForRent();
+
+            return RedirectToAction("Index", "Home");
         }
 
         #endregion
@@ -369,14 +393,6 @@ namespace IntAlk1_Assignment.Controllers
         public IActionResult EditProperty(int id)
         {
             PropertyModel property = registryDAO.GetPropertyById(id);
-            if (property.Owner != null)
-            {
-                property.OwnerId = property.Owner.Id;
-            }
-            if (property.Tenant != null)
-            {
-                property.TenantId = property.Tenant.Id;
-            }
             return RedirectToAction("EditPropertyForm", property);
         }
 
@@ -408,6 +424,29 @@ namespace IntAlk1_Assignment.Controllers
             return RedirectToAction("PropertyList");
         }
 
+        //RENT
+
+        public IActionResult RecordPayment(int year, int month, int property)
+        {
+            RentModel rent = registryDAO.GetRentById(year, month, property);
+
+            return View("RecordPaymentForm", rent);
+        }
+
+        public IActionResult RecordPaymentProcess(int year, int month, int property, int payment)
+        {
+            if(registryDAO.UpdateRent(year, month, property, payment) > 0)
+            {
+                TempData["Success"] = "<strong>Success!</strong> The payment was succesfully added to the rent.";
+            }
+            else
+            {
+                TempData["Failed"] = "<strong>Failed!</strong> Could not update the rent for some reason. Try again?";
+            }
+            return RedirectToAction("RentListByTenants");
+        }
+
         #endregion
+
     }
 }

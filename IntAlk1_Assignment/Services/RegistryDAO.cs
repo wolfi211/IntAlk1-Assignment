@@ -17,12 +17,15 @@ namespace IntAlk1_Assignment.Services
         {
             List<OwnerModel> owners = new();
 
-            string sqlStatement = "select dbo.Owners.Id, dbo.Owners.Name, dbo.Properties.Id as AddressId, dbo.Properties.Address, " +
-                                  "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, dbo.Properties.Rent " +
-                                  "from ((dbo.Owners " +
-                                  "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
-                                  "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
-                                  "order by dbo.Owners.Id asc";
+            string sqlStatement = 
+                "select dbo.Owners.Id as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Owners " +
+                "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
+                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "order by OwnerName asc";
 
             using (SqlConnection conn = new(connectionString))
             {
@@ -33,23 +36,27 @@ namespace IntAlk1_Assignment.Services
                     conn.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    int curId = 0; //there is no 0 Id in the DB so this should be ok
+                    int curId = 0;
 
                     while (reader.Read())
                     {
-                        if ((int)reader["Id"] != curId)
+                        if ((int)reader["OwnerId"] != curId)
                         {
-                            curId = (int)reader["Id"];
-                            owners.Add(new OwnerModel { Id = (int)reader["Id"], Name = (string)reader["Name"] });
+                            curId = (int)reader["OwnerId"];
+                            owners.Add(
+                                new OwnerModel { 
+                                Id = (int)reader["OwnerId"], 
+                                Name = (string)reader["OwnerName"] 
+                            });
                         }
                         owners[^1].Properties.Add(new PropertyModel
                         {
-                            Id = (int)reader["AddressId"],
-                            Address = (string)reader["Address"],
+                            Id = (int)reader["PropertyId"],
+                            Address = (string)reader["PropertyAddress"],
                             Owner = new OwnerModel
                             {
-                                Id = (int)reader["Id"],
-                                Name = (string)reader["Name"]
+                                Id = (int)reader["OwnerId"],
+                                Name = (string)reader["OwnerName"]
                             },
                             Tenant = new TenantModel
                             {
@@ -72,12 +79,15 @@ namespace IntAlk1_Assignment.Services
         {
             List<TenantModel> tenants = new();
 
-            string sqlStatement = "select dbo.Tenants.Id, dbo.Tenants.Name, dbo.Properties.Id as AddressId, dbo.Properties.Address, " +
-                                  "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, dbo.Properties.Rent " +
-                                  "from ((dbo.Tenants " +
-                                  "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
-                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                                  "order by dbo.Tenants.Id asc";
+            string sqlStatement = 
+                "select dbo.Tenants.Id as TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Tenants " +
+                "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
+                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "order by TenantName asc";
 
             using (SqlConnection conn = new(connectionString))
             {
@@ -88,66 +98,23 @@ namespace IntAlk1_Assignment.Services
                     conn.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    int curId = 0; //there is no 0 Id in the DB so this should be ok
+                    int curId = 0;
 
                     while (reader.Read())
                     {
-                        if ((int)reader["Id"] != curId)
+                        if ((int)reader["TenantId"] != curId)
                         {
-                            curId = (int)reader["Id"];
-                            tenants.Add(new TenantModel { Id = (int)reader["Id"], Name = (string)reader["Name"] });
+                            curId = (int)reader["TenantId"];
+                            tenants.Add(
+                                new TenantModel { 
+                                    Id = (int)reader["TenantId"], 
+                                    Name = (string)reader["TenantName"] 
+                                });
                         }
                         tenants[^1].Properties.Add(new PropertyModel
                         {
-                            Id = (int)reader["AddressId"],
-                            Address = (string)reader["Address"],
-                            Owner = new OwnerModel
-                            {
-                                Id = (int)reader["OwnerId"],
-                                Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
-                            {
-                                Id = (int)reader["Id"],
-                                Name = (string)reader["Name"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-            return tenants;
-        }
-
-        public List<PropertyModel> GetProperties()
-        {
-            List<PropertyModel> properties = new();
-
-            string sqlStatement = "select dbo.Properties.Id, dbo.Properties.Address, dbo.Properties.Owner as OwnerId, " +
-                                  "dbo.Owners.Name as OwnerName, dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, dbo.Properties.Rent " +
-                                  "from ((dbo.Properties " +
-                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                                  "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id)";
-
-            using (SqlConnection connection = new(connectionString))
-            {
-                SqlCommand cmd = new(sqlStatement, connection);
-
-                try
-                {
-                    connection.Open();
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        properties.Add(new PropertyModel
-                        {
-                            Id = (int)reader["Id"],
-                            Address = (string)reader["Address"],
+                            Id = (int)reader["PropertyId"],
+                            Address = (string)reader["PropertyAddress"],
                             Owner = new OwnerModel
                             {
                                 Id = (int)reader["OwnerId"],
@@ -167,7 +134,59 @@ namespace IntAlk1_Assignment.Services
                     Console.WriteLine(ex.Message);
                 }
             }
+            return tenants;
+        }
 
+        public List<PropertyModel> GetProperties()
+        {
+            List<PropertyModel> properties = new();
+
+            string sqlStatement = 
+                "select dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Properties " +
+                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "order by PropertyAddress asc";
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                SqlCommand cmd = new(sqlStatement, connection);
+
+                try
+                {
+                    connection.Open();
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        properties.Add(new PropertyModel
+                        {
+                            Id = (int)reader["PropertyId"],
+                            Address = (string)reader["PropertyAddress"],
+                            Owner = new OwnerModel
+                            {
+                                Id = (int)reader["OwnerId"],
+                                Name = (string)reader["OwnerName"]
+                            },
+                            Tenant = new TenantModel
+                            {
+                                Id = (int)reader["TenantId"],
+                                Name = (string)reader["TenantName"]
+                            },
+                            Rent = (int)reader["Rent"],
+                            TenantId = (int)reader["TenantId"],
+                            OwnerId = (int)reader["OwnerId"]
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
             return properties;
         }
 
@@ -175,12 +194,15 @@ namespace IntAlk1_Assignment.Services
         {
             var rents = new List<RentModel>();
 
-            string sqlStatement = "select dbo.Rents.Year, dbo.Rents.Month, dbo.Rents.Property as PropertyId, dbo.Properties.Address as PropertyAddress, " +
-                "dbo.Rents.Tenant as TenantId, dbo.Tenants.Name as TenantName, dbo.Rents.Rent, dbo.Rents.Payed, dbo.Rents.Done " +
+            string sqlStatement = 
+                "select dbo.Rents.Year, dbo.Rents.Month, " +
+                "dbo.Rents.Property as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Rents.Tenant as TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Rents.Owed, dbo.Rents.Payed, dbo.Rents.isPayed " +
                 "from ((dbo.Rents " +
                 "inner join dbo.Properties on dbo.Rents.Property = dbo.Properties.Id) " +
                 "inner join dbo.Tenants on dbo.Rents.Tenant = dbo.Tenants.Id) " +
-                "where dbo.Rents.Done = 0";
+                "where dbo.Rents.isPayed = 0";
 
             using (SqlConnection connection = new(connectionString))
             {
@@ -201,9 +223,9 @@ namespace IntAlk1_Assignment.Services
                             PropertyAddress = (string)reader["PropertyAddress"],
                             TenantId = (int)reader["TenantId"],
                             TenantName = (string)reader["TenantName"],
-                            Rent = (int)reader["Rent"],
+                            Owed = (int)reader["Owed"],
                             Payed = (int)reader["Payed"],
-                            IsPayed = (bool)reader["Done"]
+                            IsPayed = (bool)reader["isPayed"]
                         });
                     }
                 }
@@ -212,7 +234,6 @@ namespace IntAlk1_Assignment.Services
                     Console.WriteLine(ex.Message);
                 }
             }
-
             return rents;
         }
 
@@ -228,13 +249,16 @@ namespace IntAlk1_Assignment.Services
         {
             OwnerModel owner = null;
 
-            string sqlStatement = "select dbo.Owners.Id, dbo.Owners.Name, dbo.Properties.Id as AddressId, dbo.Properties.Address, " +
-                                  "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, dbo.Properties.Rent " +
-                                  "from ((dbo.Owners " +
-                                  "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
-                                  "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
-                                  "where dbo.Owners.Id = @OwnerId " +
-                                  "order by dbo.Owners.Id asc";
+            string sqlStatement = 
+                "select dbo.Owners.Id as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Owners " +
+                "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
+                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "where dbo.Owners.Id = @OwnerId " +
+                "order by dbo.Owners.Id asc";
 
             using (SqlConnection conn = new(connectionString))
             {
@@ -246,14 +270,18 @@ namespace IntAlk1_Assignment.Services
                     conn.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    int curId = 0; //there is no 0 Id in the DB so this should be ok
+                    int curId = 0;
 
+                    //[while] neccesary, there will be more data lines if owner has more properties
                     while (reader.Read())
                     {
-                        if ((int)reader["Id"] != curId)
+                        if ((int)reader["OwnerId"] != curId)
                         {
-                            curId = (int)reader["Id"];
-                            owner = new OwnerModel { Id = (int)reader["Id"], Name = (string)reader["Name"] };
+                            curId = (int)reader["OwnerId"];
+                            owner = new OwnerModel { 
+                                Id = (int)reader["OwnerId"],
+                                Name = (string)reader["OwnerName"]
+                            };
                         }
                         owner.Properties.Add(new PropertyModel
                         {
@@ -261,8 +289,8 @@ namespace IntAlk1_Assignment.Services
                             Address = (string)reader["Address"],
                             Owner = new OwnerModel
                             {
-                                Id = (int)reader["Id"],
-                                Name = (string)reader["Name"]
+                                Id = (int)reader["OwnerId"],
+                                Name = (string)reader["OwnerName"]
                             },
                             Tenant = new TenantModel
                             {
@@ -285,13 +313,16 @@ namespace IntAlk1_Assignment.Services
         {
             TenantModel tenant = null;
 
-            string sqlStatement = "select dbo.Tenants.Id, dbo.Tenants.Name, dbo.Properties.Id as AddressId, dbo.Properties.Address, " +
-                                  "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, dbo.Properties.Rent " +
-                                  "from ((dbo.Tenants " +
-                                  "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
-                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                                  "where dbo.Tenants.Id = @TenantId " +
-                                  "order by dbo.Tenants.Id asc";
+            string sqlStatement = 
+                "select dbo.Tenants.Id as TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Tenants " +
+                "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
+                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "where dbo.Tenants.Id = @TenantId " +
+                "order by dbo.Tenants.Id asc";
 
             using (SqlConnection conn = new(connectionString))
             {
@@ -303,19 +334,23 @@ namespace IntAlk1_Assignment.Services
                     conn.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    int curId = 0; //there is no 0 Id in the DB so this should be ok
+                    int curId = 0;
 
+                    //[while] neccesary, there will be more data lines if owner has more properties
                     while (reader.Read())
                     {
-                        if ((int)reader["Id"] != curId)
+                        if ((int)reader["OwnerId"] != curId)
                         {
-                            curId = (int)reader["Id"];
-                            tenant = new TenantModel { Id = (int)reader["Id"], Name = (string)reader["Name"] };
+                            curId = (int)reader["OwnerId"];
+                            tenant = new TenantModel { 
+                                Id = (int)reader["OwnerId"], 
+                                Name = (string)reader["OwnerName"]
+                            };
                         }
                         tenant.Properties.Add(new PropertyModel
                         {
-                            Id = (int)reader["AddressId"],
-                            Address = (string)reader["Address"],
+                            Id = (int)reader["PropertyId"],
+                            Address = (string)reader["PropertyAddress"],
                             Owner = new OwnerModel
                             {
                                 Id = (int)reader["OwnerId"],
@@ -323,8 +358,8 @@ namespace IntAlk1_Assignment.Services
                             },
                             Tenant = new TenantModel
                             {
-                                Id = (int)reader["Id"],
-                                Name = (string)reader["Name"]
+                                Id = (int)reader["TenantId"],
+                                Name = (string)reader["TenantName"]
                             },
                             Rent = (int)reader["Rent"]
                         });
@@ -342,12 +377,15 @@ namespace IntAlk1_Assignment.Services
         {
             PropertyModel property = null;
 
-            string sqlStatement = "select dbo.Properties.Id, dbo.Properties.Address, dbo.Properties.Owner as OwnerId, " +
-                                  "dbo.Owners.Name as OwnerName, dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, dbo.Properties.Rent " +
-                                  "from ((dbo.Properties " +
-                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                                  "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
-                                  "where dbo.Properties.Id = @PropertyId;";
+            string sqlStatement = 
+                "select dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Properties " +
+                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "where dbo.Properties.Id = @PropertyId;";
 
             using (SqlConnection connection = new(connectionString))
             {
@@ -363,8 +401,8 @@ namespace IntAlk1_Assignment.Services
                     {
                         property = new PropertyModel
                         {
-                            Id = (int)reader["Id"],
-                            Address = (string)reader["Address"],
+                            Id = (int)reader["PropertyId"],
+                            Address = (string)reader["PropertyAddress"],
                             Owner = new OwnerModel
                             {
                                 Id = (int)reader["OwnerId"],
@@ -375,7 +413,9 @@ namespace IntAlk1_Assignment.Services
                                 Id = (int)reader["TenantId"],
                                 Name = (string)reader["TenantName"]
                             },
-                            Rent = (int)reader["Rent"]
+                            Rent = (int)reader["Rent"],
+                            TenantId = (int)reader["TenantId"],
+                            OwnerId = (int)reader["OwnerId"]
                         };
                     }
                 }
@@ -386,6 +426,56 @@ namespace IntAlk1_Assignment.Services
             }
 
             return property;
+        }
+
+        internal RentModel GetRentById(int year, int month, int property)
+        {
+            RentModel rent = null;
+
+            string sqlStatement =
+                "select dbo.Rents.Year, dbo.Rents.Month, " +
+                "dbo.Rents.Property as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Rents.Tenant as TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Rents.Owed, dbo.Rents.Payed, dbo.Rents.isPayed " +
+                "from ((dbo.Rents " +
+                "inner join dbo.Properties on dbo.Rents.Property = dbo.Properties.Id) " +
+                "inner join dbo.Tenants on dbo.Rents.Tenant = dbo.Tenants.Id) " +
+                "where dbo.Rents.Year = @year and dbo.Rents.Month = @month and dbo.Rents.Property = @property";
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                SqlCommand cmd = new(sqlStatement, connection);
+                cmd.Parameters.AddWithValue("@year", year);
+                cmd.Parameters.AddWithValue("@month", month);
+                cmd.Parameters.AddWithValue("@property", property);
+
+                try
+                {
+                    connection.Open();
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        rent = new RentModel
+                        {
+                            Year = (int)reader["Year"],
+                            Month = (int)reader["Month"],
+                            PropertyId = (int)reader["PropertyId"],
+                            PropertyAddress = (string)reader["PropertyAddress"],
+                            TenantId = (int)reader["TenantId"],
+                            TenantName = (string)reader["TenantName"],
+                            Owed = (int)reader["Owed"],
+                            Payed = (int)reader["Payed"],
+                            IsPayed = (bool)reader["isPayed"]
+                        };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return rent;
         }
 
         #endregion
@@ -400,13 +490,16 @@ namespace IntAlk1_Assignment.Services
         {
             List<OwnerModel> owners = new();
 
-            string sqlStatement = "select dbo.Owners.Id, dbo.Owners.Name, dbo.Properties.Id as AddressId, dbo.Properties.Address, " +
-                                  "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, dbo.Properties.Rent " +
-                                  "from ((dbo.Owners " +
-                                  "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
-                                  "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
-                                  "where dbo.Owners.Name like @SearchTerm " +
-                                  "order by dbo.Owners.Id asc";
+            string sqlStatement = 
+                "select dbo.Owners.Id as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Owners " +
+                "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
+                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "where dbo.Owners.Name like @SearchTerm " +
+                "order by dbo.Owners.Id asc";
 
             using (SqlConnection conn = new(connectionString))
             {
@@ -418,23 +511,26 @@ namespace IntAlk1_Assignment.Services
                     conn.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    int curId = 0; //there is no 0 Id in the DB so this should be ok
+                    int curId = 0;
 
                     while (reader.Read())
                     {
-                        if ((int)reader["Id"] != curId)
+                        if ((int)reader["OwnerId"] != curId)
                         {
-                            curId = (int)reader["Id"];
-                            owners.Add(new OwnerModel { Id = (int)reader["Id"], Name = (string)reader["Name"] });
+                            curId = (int)reader["OwnerId"];
+                            owners.Add(new OwnerModel { 
+                                Id = (int)reader["OwnerId"], 
+                                Name = (string)reader["OwnerName"] 
+                            });
                         }
                         owners[^1].Properties.Add(new PropertyModel
                         {
-                            Id = (int)reader["AddressId"],
-                            Address = (string)reader["Address"],
+                            Id = (int)reader["PropertyId"],
+                            Address = (string)reader["PropertyAddress"],
                             Owner = new OwnerModel
                             {
-                                Id = (int)reader["Id"],
-                                Name = (string)reader["Name"]
+                                Id = (int)reader["OwnerId"],
+                                Name = (string)reader["OwnerName"]
                             },
                             Tenant = new TenantModel
                             {
@@ -457,13 +553,16 @@ namespace IntAlk1_Assignment.Services
         {
             List<TenantModel> tenants = new();
 
-            string sqlStatement = "select dbo.Tenants.Id, dbo.Tenants.Name, dbo.Properties.Id as AddressId, dbo.Properties.Address, " +
-                                  "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, dbo.Properties.Rent " +
-                                  "from ((dbo.Tenants " +
-                                  "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
-                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                                  "where dbo.Tenant.Name like @SearchTerm " +
-                                  "order by dbo.Tenants.Id asc";
+            string sqlStatement = 
+                "select dbo.Tenants.Id as TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Tenants " +
+                "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
+                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "where dbo.Tenant.Name like @SearchTerm " +
+                "order by dbo.Tenants.Id asc";
 
             using (SqlConnection conn = new(connectionString))
             {
@@ -475,68 +574,22 @@ namespace IntAlk1_Assignment.Services
                     conn.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    int curId = 0; //there is no 0 Id in the DB so this should be ok
+                    int curId = 0;
 
                     while (reader.Read())
                     {
-                        if ((int)reader["Id"] != curId)
+                        if ((int)reader["TenantId"] != curId)
                         {
-                            curId = (int)reader["Id"];
-                            tenants.Add(new TenantModel { Id = (int)reader["Id"], Name = (string)reader["Name"] });
+                            curId = (int)reader["TenantId"];
+                            tenants.Add(new TenantModel { 
+                                Id = (int)reader["TenantId"], 
+                                Name = (string)reader["TenantName"] 
+                            });
                         }
                         tenants[^1].Properties.Add(new PropertyModel
                         {
-                            Id = (int)reader["AddressId"],
-                            Address = (string)reader["Address"],
-                            Owner = new OwnerModel
-                            {
-                                Id = (int)reader["OwnerId"],
-                                Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
-                            {
-                                Id = (int)reader["Id"],
-                                Name = (string)reader["Name"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-            return tenants;
-        }
-
-        public List<PropertyModel> SearchProperties(string searchTerm)
-        {
-            List<PropertyModel> properties = new();
-
-            string sqlStatement = "select dbo.Properties.Id, dbo.Properties.Address, dbo.Properties.Owner as OwnerId, " +
-                                  "dbo.Owners.Name as OwnerName, dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, dbo.Properties.Rent " +
-                                  "from ((dbo.Properties " +
-                                  "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                                  "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
-                                  "where dbo.Properties.Address like @SearchTerm";
-
-            using (SqlConnection connection = new(connectionString))
-            {
-                SqlCommand cmd = new(sqlStatement, connection);
-                cmd.Parameters.AddWithValue("@SearchTerm", '%' + searchTerm + '%');
-
-                try
-                {
-                    connection.Open();
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        properties.Add(new PropertyModel
-                        {
-                            Id = (int)reader["Id"],
-                            Address = (string)reader["Address"],
+                            Id = (int)reader["PropertyId"],
+                            Address = (string)reader["PropertyAddress"],
                             Owner = new OwnerModel
                             {
                                 Id = (int)reader["OwnerId"],
@@ -556,7 +609,58 @@ namespace IntAlk1_Assignment.Services
                     Console.WriteLine(ex.Message);
                 }
             }
+            return tenants;
+        }
 
+        public List<PropertyModel> SearchProperties(string searchTerm)
+        {
+            List<PropertyModel> properties = new();
+
+            string sqlStatement = 
+                "select dbo.Properties.Id as PropertyId, dbo.Properties.Address as PropertyAddress, " +
+                "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
+                "dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, " +
+                "dbo.Properties.Rent " +
+                "from ((dbo.Properties " +
+                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "where dbo.Properties.Address like @SearchTerm";
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                SqlCommand cmd = new(sqlStatement, connection);
+                cmd.Parameters.AddWithValue("@SearchTerm", '%' + searchTerm + '%');
+
+                try
+                {
+                    connection.Open();
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        properties.Add(new PropertyModel
+                        {
+                            Id = (int)reader["PropertyId"],
+                            Address = (string)reader["PropertyAddress"],
+                            Owner = new OwnerModel
+                            {
+                                Id = (int)reader["OwnerId"],
+                                Name = (string)reader["OwnerName"]
+                            },
+                            Tenant = new TenantModel
+                            {
+                                Id = (int)reader["TenantId"],
+                                Name = (string)reader["TenantName"]
+                            },
+                            Rent = (int)reader["Rent"]
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
             return properties;
         }
 
@@ -618,7 +722,9 @@ namespace IntAlk1_Assignment.Services
 
         public int InsertProperty(PropertyModel property)
         {
-            string sqlStatement = "INSERT INTO dbo.Properties (Address, Owner, Tenant, Rent) VALUES (@Address, @Owner, @Tenant, @Rent)";
+            string sqlStatement = 
+                "INSERT INTO dbo.Properties (Address, Owner, Tenant, Rent) " +
+                "VALUES (@Address, @Owner, @Tenant, @Rent)";
             int newId = -1;
 
             using (SqlConnection connection = new(connectionString))
@@ -641,6 +747,44 @@ namespace IntAlk1_Assignment.Services
                 }
             }
             return newId;
+        }
+
+        public void CreateObligationForRent()
+        {
+            DateTime dateTime = DateTime.Now;
+            List<PropertyModel> properties = GetProperties();
+
+            string sqlStatement =
+                "insert into dbo.Rents " +
+                "(Year, Month, Property, Tenant, Owed) " +
+                "values (@year, @month, @property, @tenant, @owed)";
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    foreach (PropertyModel property in properties)
+                    {
+                        if (property.TenantId != 0)
+                        {
+                            SqlCommand sqlCommand = new(sqlStatement, connection);
+                            sqlCommand.Parameters.AddWithValue("@year", dateTime.Year.ToString());
+                            sqlCommand.Parameters.AddWithValue("@month", dateTime.Month.ToString());
+                            sqlCommand.Parameters.AddWithValue("@property", property.Id);
+                            sqlCommand.Parameters.AddWithValue("@tenant", property.TenantId);
+                            sqlCommand.Parameters.AddWithValue("@owed", property.Rent);
+
+                            sqlCommand.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
         }
 
         #endregion
@@ -705,7 +849,9 @@ namespace IntAlk1_Assignment.Services
         public int UpdateProperty(PropertyModel property)
         {
             int reply = -1;
-            string sqlStatement = "UPDATE dbo.Properties SET Address=@Address, Owner=@Owner, Tenant=@Tenant, Rent=@Rent WHERE Id=@Id";
+            string sqlStatement = 
+                "UPDATE dbo.Properties SET " +
+                "Address=@Address, Owner=@Owner, Tenant=@Tenant, Rent=@Rent WHERE Id=@Id";
 
             using (SqlConnection connection = new(connectionString))
             {
@@ -723,6 +869,35 @@ namespace IntAlk1_Assignment.Services
 
                 }
                 catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return reply;
+        }
+
+        public int UpdateRent(int year, int month, int property, int payment)
+        {
+            int reply = -1;
+            string sqlStatement =
+                "update dbo.Rents set " +
+                "Payed = Payed + @payment " +
+                "where Year = @year and Month = @month and Property = @property";
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                SqlCommand cmd = new(sqlStatement, connection);
+                cmd.Parameters.AddWithValue("@year", year);
+                cmd.Parameters.AddWithValue("@month", month);
+                cmd.Parameters.AddWithValue("@property", property);
+                cmd.Parameters.AddWithValue("@payment", payment);
+
+                try
+                {
+                    connection.Open();
+                    reply = cmd.ExecuteNonQuery();
+                }
+                catch(Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
@@ -752,7 +927,7 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
 
-                    reply = Convert.ToInt32(cmd.ExecuteScalar());
+                    reply = Convert.ToInt32(cmd.ExecuteNonQuery());
                 }
                 catch (Exception ex)
                 {
@@ -776,7 +951,7 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
 
-                    reply = Convert.ToInt32(cmd.ExecuteScalar());
+                    reply = Convert.ToInt32(cmd.ExecuteNonQuery());
                 }
                 catch (Exception ex)
                 {
@@ -800,7 +975,33 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
 
-                    reply = Convert.ToInt32(cmd.ExecuteScalar());
+                    reply = Convert.ToInt32(cmd.ExecuteNonQuery());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return reply;
+        }
+
+        public int DeleteRent(int year, int month, int property)
+        {
+            int reply = -1;
+            string sqlStatement = "DELETE FROM dbo.Rents WHERE Year = @year and Month = @month and Property = @property";
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                SqlCommand cmd = new(sqlStatement, connection);
+                cmd.Parameters.AddWithValue("@year", year);
+                cmd.Parameters.AddWithValue("@month", month);
+                cmd.Parameters.AddWithValue("@property", property);
+
+                try
+                {
+                    connection.Open();
+
+                    reply = cmd.ExecuteNonQuery();
                 }
                 catch (Exception ex)
                 {
@@ -811,5 +1012,7 @@ namespace IntAlk1_Assignment.Services
         }
 
         #endregion
+
+
     }
 }

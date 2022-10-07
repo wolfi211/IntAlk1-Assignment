@@ -1,0 +1,59 @@
+﻿@model PagedList<IntAlk1_Assignment.Models.RentModel>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Address
+            </th>
+            <th>
+                Date
+            </th>
+            <th>
+                Rent ($)
+            </th>
+            <th>
+                Payed ($)
+            </th>
+            <th>
+                Tenant ($)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PropertyAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Year).
+                @Html.DisplayFor(modelItem => item.Month).
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Owed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Payed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TenantName)
+            </td>
+            <td>
+                @Html.ActionLink("Record Payment", "RecordPayment", new { year = item.Year, month = item.Month, property = item.PropertyId })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<div class="row d-flex justify-content-center">
+    <div class="col-4 btn btn-primary @(Model.HasPreviousPage ? "" : "disabled")">
+        <a class="page-link" href="/registry/RentListByProperties?page=@(Model.PageNumber - 1)">&laquo;</a>
+    </div>
+
+    <div class="col-4 btn btn-primary @(Model.HasNextPage ? "" : "disabled")">
+        <a class="page-link" href="/registry/RentListByProperties?page=@(Model.PageNumber + 1)">&raquo;</a>
+    </div>
+</div>
