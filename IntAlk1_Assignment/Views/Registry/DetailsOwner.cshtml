@@ -25,12 +25,17 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(PropertyModel item in Model.Properties)
-            {
-                <tr>
-                    <td scope="row"><a href="/registry/DetailsProperty?Id=@item.Id">@item.Address</a></td>
-                    <td><a href="/registry/DetailsTenant?Id=@item.Tenant.Id">@(item.Tenant != null ? item.Tenant.Name : "No tenant")</a></td>
-                </tr>
+            @{
+                if (Model.Properties.Any())   
+                {
+                    foreach(PropertyModel item in Model.Properties)
+                    {
+                        <tr>
+                            <td scope="row"><a href="/registry/DetailsProperty?Id=@item.Id">@item.Address</a></td>
+                            <td><a href="/registry/DetailsTenant?Id=@item.Tenant.Id">@(item.Tenant != null ? item.Tenant.Name : "No tenant")</a></td>
+                        </tr>
+                    }
+                }
             }
         </tbody>
     </table>

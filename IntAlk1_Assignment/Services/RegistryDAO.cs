@@ -6,6 +6,7 @@ namespace IntAlk1_Assignment.Services
     public class RegistryDAO : IRegistryDataService
     {
         private readonly string connectionString = "Data Source=Localhost;Initial Catalog=IntAlk;Integrated Security=True";
+        private Logger _logger = new();
 
         /*********************************************************************
          * Get EVERYthing from a table
@@ -23,8 +24,8 @@ namespace IntAlk1_Assignment.Services
                 "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, " +
                 "dbo.Properties.Rent " +
                 "from ((dbo.Owners " +
-                "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
-                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "left join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
+                "left join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
                 "order by OwnerName asc";
 
             using (SqlConnection conn = new(connectionString))
@@ -49,22 +50,25 @@ namespace IntAlk1_Assignment.Services
                                 Name = (string)reader["OwnerName"] 
                             });
                         }
-                        owners[^1].Properties.Add(new PropertyModel
+                        if (!DBNull.Value.Equals(reader["PropertyId"]))
                         {
-                            Id = (int)reader["PropertyId"],
-                            Address = (string)reader["PropertyAddress"],
-                            Owner = new OwnerModel
+                            owners[^1].Properties.Add(new PropertyModel
                             {
-                                Id = (int)reader["OwnerId"],
-                                Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
-                            {
-                                Id = (int)reader["TenantId"],
-                                Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
+                                Id = (int)reader["PropertyId"],
+                                Address = (string)reader["PropertyAddress"],
+                                Owner = new OwnerModel
+                                {
+                                    Id = (int)reader["OwnerId"],
+                                    Name = (string)reader["OwnerName"]
+                                },
+                                Tenant = new TenantModel
+                                {
+                                    Id = (int)reader["TenantId"],
+                                    Name = (string)reader["TenantName"]
+                                },
+                                Rent = (int)reader["Rent"]
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -85,8 +89,8 @@ namespace IntAlk1_Assignment.Services
                 "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
                 "dbo.Properties.Rent " +
                 "from ((dbo.Tenants " +
-                "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
-                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "left join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
+                "left join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
                 "order by TenantName asc";
 
             using (SqlConnection conn = new(connectionString))
@@ -111,22 +115,25 @@ namespace IntAlk1_Assignment.Services
                                     Name = (string)reader["TenantName"] 
                                 });
                         }
-                        tenants[^1].Properties.Add(new PropertyModel
+                        if (!DBNull.Value.Equals(reader["PropertyId"]))
                         {
-                            Id = (int)reader["PropertyId"],
-                            Address = (string)reader["PropertyAddress"],
-                            Owner = new OwnerModel
+                            tenants[^1].Properties.Add(new PropertyModel
                             {
-                                Id = (int)reader["OwnerId"],
-                                Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
-                            {
-                                Id = (int)reader["TenantId"],
-                                Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
+                                Id = (int)reader["PropertyId"],
+                                Address = (string)reader["PropertyAddress"],
+                                Owner = new OwnerModel
+                                {
+                                    Id = (int)reader["OwnerId"],
+                                    Name = (string)reader["OwnerName"]
+                                },
+                                Tenant = new TenantModel
+                                {
+                                    Id = (int)reader["TenantId"],
+                                    Name = (string)reader["TenantName"]
+                                },
+                                Rent = (int)reader["Rent"]
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -147,8 +154,8 @@ namespace IntAlk1_Assignment.Services
                 "dbo.Properties.Tenant TenantId, dbo.Tenants.Name as TenantName, " +
                 "dbo.Properties.Rent " +
                 "from ((dbo.Properties " +
-                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "left join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "left join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
                 "order by PropertyAddress asc";
 
             using (SqlConnection connection = new(connectionString))
@@ -166,20 +173,26 @@ namespace IntAlk1_Assignment.Services
                         {
                             Id = (int)reader["PropertyId"],
                             Address = (string)reader["PropertyAddress"],
-                            Owner = new OwnerModel
+                            Rent = (int)reader["Rent"]
+                        });
+                        if (!DBNull.Value.Equals(reader["OwnerId"]))
+                        {
+                            properties[^1].Owner = new OwnerModel
                             {
                                 Id = (int)reader["OwnerId"],
                                 Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
+                            };
+                            properties[^1].OwnerId = (int)reader["OwnerId"];
+                        }
+                        if (!DBNull.Value.Equals(reader["TenantId"]))
+                        {
+                            properties[^1].Tenant = new TenantModel
                             {
                                 Id = (int)reader["TenantId"],
                                 Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"],
-                            TenantId = (int)reader["TenantId"],
-                            OwnerId = (int)reader["OwnerId"]
-                        });
+                            };
+                            properties[^1].TenantId = (int)reader["TenantId"];
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -255,10 +268,9 @@ namespace IntAlk1_Assignment.Services
                 "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, " +
                 "dbo.Properties.Rent " +
                 "from ((dbo.Owners " +
-                "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
-                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
-                "where dbo.Owners.Id = @OwnerId " +
-                "order by dbo.Owners.Id asc";
+                "left join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
+                "left join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "where dbo.Owners.Id = @OwnerId ";
 
             using (SqlConnection conn = new(connectionString))
             {
@@ -283,22 +295,25 @@ namespace IntAlk1_Assignment.Services
                                 Name = (string)reader["OwnerName"]
                             };
                         }
-                        owner.Properties.Add(new PropertyModel
+                        if (!DBNull.Value.Equals(reader["PropertyId"]))
                         {
-                            Id = (int)reader["AddressId"],
-                            Address = (string)reader["Address"],
-                            Owner = new OwnerModel
+                            owner.Properties.Add(new PropertyModel
                             {
-                                Id = (int)reader["OwnerId"],
-                                Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
-                            {
-                                Id = (int)reader["TenantId"],
-                                Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
+                                Id = (int)reader["PropertyId"],
+                                Address = (string)reader["PropertyAddress"],
+                                Owner = new OwnerModel
+                                {
+                                    Id = (int)reader["OwnerId"],
+                                    Name = (string)reader["OwnerName"]
+                                },
+                                Tenant = new TenantModel
+                                {
+                                    Id = (int)reader["TenantId"],
+                                    Name = (string)reader["TenantName"]
+                                },
+                                Rent = (int)reader["Rent"]
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -319,10 +334,9 @@ namespace IntAlk1_Assignment.Services
                 "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
                 "dbo.Properties.Rent " +
                 "from ((dbo.Tenants " +
-                "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
-                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                "where dbo.Tenants.Id = @TenantId " +
-                "order by dbo.Tenants.Id asc";
+                "left join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
+                "left join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "where dbo.Tenants.Id = @TenantId ";
 
             using (SqlConnection conn = new(connectionString))
             {
@@ -339,30 +353,33 @@ namespace IntAlk1_Assignment.Services
                     //[while] neccesary, there will be more data lines if owner has more properties
                     while (reader.Read())
                     {
-                        if ((int)reader["OwnerId"] != curId)
+                        if ((int)reader["TenantId"] != curId)
                         {
-                            curId = (int)reader["OwnerId"];
+                            curId = (int)reader["TenantId"];
                             tenant = new TenantModel { 
-                                Id = (int)reader["OwnerId"], 
-                                Name = (string)reader["OwnerName"]
+                                Id = (int)reader["TenantId"], 
+                                Name = (string)reader["TenantName"]
                             };
                         }
-                        tenant.Properties.Add(new PropertyModel
+                        if (!DBNull.Value.Equals(reader["PropertyId"]))
                         {
-                            Id = (int)reader["PropertyId"],
-                            Address = (string)reader["PropertyAddress"],
-                            Owner = new OwnerModel
+                            tenant.Properties.Add(new PropertyModel
                             {
-                                Id = (int)reader["OwnerId"],
-                                Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
-                            {
-                                Id = (int)reader["TenantId"],
-                                Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
+                                Id = (int)reader["PropertyId"],
+                                Address = (string)reader["PropertyAddress"],
+                                Owner = new OwnerModel
+                                {
+                                    Id = (int)reader["OwnerId"],
+                                    Name = (string)reader["OwnerName"]
+                                },
+                                Tenant = new TenantModel
+                                {
+                                    Id = (int)reader["TenantId"],
+                                    Name = (string)reader["TenantName"]
+                                },
+                                Rent = (int)reader["Rent"]
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -403,20 +420,26 @@ namespace IntAlk1_Assignment.Services
                         {
                             Id = (int)reader["PropertyId"],
                             Address = (string)reader["PropertyAddress"],
-                            Owner = new OwnerModel
+                            Rent = (int)reader["Rent"]
+                        };
+                        if (!DBNull.Value.Equals(reader["OwnerId"]))
+                        {
+                            property.Owner = new OwnerModel
                             {
                                 Id = (int)reader["OwnerId"],
                                 Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
+                            };
+                            property.OwnerId = (int)reader["OwnerId"];
+                        }
+                        if (!DBNull.Value.Equals(reader["TenantId"]))
+                        {
+                            property.Tenant = new TenantModel
                             {
                                 Id = (int)reader["TenantId"],
                                 Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"],
-                            TenantId = (int)reader["TenantId"],
-                            OwnerId = (int)reader["OwnerId"]
-                        };
+                            };
+                            property.TenantId = (int)reader["TenantId"];
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -428,7 +451,7 @@ namespace IntAlk1_Assignment.Services
             return property;
         }
 
-        internal RentModel GetRentById(int year, int month, int property)
+        public RentModel GetRentById(int year, int month, int property)
         {
             RentModel rent = null;
 
@@ -687,10 +710,13 @@ namespace IntAlk1_Assignment.Services
                     connection.Open();
 
                     newId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    _logger.Info("Created owner with name " + owner.Name);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Owner creation failed. Message: " + ex.Message);
                 }
             }
             return newId;
@@ -711,10 +737,12 @@ namespace IntAlk1_Assignment.Services
                     connection.Open();
 
                     newId = Convert.ToInt32(cmd.ExecuteScalar());
+                    _logger.Info("Created tenant with name " + tenant.Name);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Tenant creation failed. Message: " + ex.Message);
                 }
             }
             return newId;
@@ -740,10 +768,12 @@ namespace IntAlk1_Assignment.Services
                     connection.Open();
 
                     newId = Convert.ToInt32(cmd.ExecuteScalar());
+                    _logger.Info("Created property with address " + property.Address);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Property creation failed. Message: " + ex.Message);
                 }
             }
             return newId;
@@ -779,10 +809,12 @@ namespace IntAlk1_Assignment.Services
                             sqlCommand.ExecuteNonQuery();
                         }
                     }
+                    _logger.Info("Created monthly rents.");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Monthly rent creation failed at some point. Message: " + ex.Message);
                 }
             }
         }
@@ -811,11 +843,12 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
                     reply = Convert.ToInt32(cmd.ExecuteScalar());
-
+                    _logger.Info(String.Format("Owner with ID {0} was updated to {1}", owner.Id, owner.Name));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Owner update failed. Message: " + ex.Message);
                 }
             }
             return reply;
@@ -836,11 +869,12 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
                     reply = Convert.ToInt32(cmd.ExecuteScalar());
-
+                    _logger.Info(String.Format("Tenant with ID {0} was updated to {1}", tenant.Id, tenant.Name));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Tenant update failed. Message: " + ex.Message);
                 }
             }
             return reply;
@@ -857,8 +891,8 @@ namespace IntAlk1_Assignment.Services
             {
                 SqlCommand cmd = new(sqlStatement, connection);
                 cmd.Parameters.AddWithValue("@Address", property.Address);
-                cmd.Parameters.AddWithValue("@Owner", property.OwnerId);
-                cmd.Parameters.AddWithValue("@Tenant", property.TenantId);
+                cmd.Parameters.AddWithValue("@Owner", (property.OwnerId != 0) ? property.OwnerId : DBNull.Value);
+                cmd.Parameters.AddWithValue("@Tenant", (property.TenantId != 0) ? property.TenantId : DBNull.Value);
                 cmd.Parameters.AddWithValue("@Rent", property.Rent);
                 cmd.Parameters.AddWithValue("@Id", property.Id);
 
@@ -866,11 +900,12 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
                     reply = Convert.ToInt32(cmd.ExecuteScalar());
-
+                    _logger.Info(String.Format("Property with ID {0} was updated", property.Id));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Property update failed. Message: " + ex.Message);
                 }
             }
             return reply;
@@ -896,10 +931,12 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
                     reply = cmd.ExecuteNonQuery();
+                    _logger.Info(String.Format("Rent with ID {0}-{1}-{2} was updated", year, month, property));
                 }
                 catch(Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Rent update failed. Message: " + ex.Message);
                 }
             }
             return reply;
@@ -928,10 +965,12 @@ namespace IntAlk1_Assignment.Services
                     connection.Open();
 
                     reply = Convert.ToInt32(cmd.ExecuteNonQuery());
+                    _logger.Info(String.Format("Owner with ID {0} was deleted", Id));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Owner deletion failed. Message: " + ex.Message);
                 }
             }
             return reply;
@@ -952,10 +991,12 @@ namespace IntAlk1_Assignment.Services
                     connection.Open();
 
                     reply = Convert.ToInt32(cmd.ExecuteNonQuery());
+                    _logger.Info(String.Format("Tenant with ID {0} was deleted", Id));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Tenant deletion failed. Message: " + ex.Message);
                 }
             }
             return reply;
@@ -976,10 +1017,12 @@ namespace IntAlk1_Assignment.Services
                     connection.Open();
 
                     reply = Convert.ToInt32(cmd.ExecuteNonQuery());
+                    _logger.Info(String.Format("Property with ID {0} was deleted", Id));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Property deletion failed. Message: " + ex.Message);
                 }
             }
             return reply;
@@ -1002,10 +1045,12 @@ namespace IntAlk1_Assignment.Services
                     connection.Open();
 
                     reply = cmd.ExecuteNonQuery();
+                    _logger.Info(String.Format("Rent with ID {0}-{1}-{2} was deleted", year, month, property));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Rent deletion failed. Message: " + ex.Message);
                 }
             }
             return reply;
@@ -1022,10 +1067,12 @@ namespace IntAlk1_Assignment.Services
                 {
                     connection.Open();
                     cmd.ExecuteNonQuery();
+                    _logger.Info("Deleted all rents");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    _logger.Error("Something went wrong during the deletion of all rents. Message: " + ex.Message);
                 }
             }
         }

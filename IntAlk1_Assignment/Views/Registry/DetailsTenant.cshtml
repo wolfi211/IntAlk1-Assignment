@@ -25,12 +25,17 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (IntAlk1_Assignment.Models.PropertyModel item in Model.Properties)
-            {
-                <tr>
-                    <td scope="row"><a href="/registry/DetailsProperty?Id=@item.Id">@item.Address</a></td>
-                    <td><a href="/registry/DetailsOwner?Id=@item.Owner.Id">@(item.Owner != null ? item.Owner.Name : "No Owner")</a></td>
-                </tr>
+            @{
+                if (Model.Properties.Any())   
+                {
+                    foreach(PropertyModel item in Model.Properties)
+                    {
+                        <tr>
+                            <td scope="row"><a href="/registry/DetailsProperty?Id=@item.Id">@item.Address</a></td>
+                            <td><a href="/registry/DetailsOwner?Id=@item.Owner.Id">@(item.Owner != null ? item.Owner.Name : "No Owner")</a></td>
+                        </tr>
+                    }
+                }
             }
         </tbody>
     </table>
@@ -41,5 +46,8 @@
     </div>
     <div class="col-3 d-grid">
         <a asp-action="TenantList" class="btn btn-secondary">Back to List</a>
+    </div>
+    <div class=" col-3 d-grid">
+        <a href="/registry/DeleteTenant/@Model.Id" class="btn btn-outline-warning">Delete</a>
     </div>
 </div>
