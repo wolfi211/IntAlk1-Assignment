@@ -1,6 +1,6 @@
 ﻿@model IntAlk1_Assignment.Models.OwnerModel
 
-<div class="row">
+<div class="row mt-3">
     <div class="col-lg-4 mx-auto">
         <h4 class="text-center">Create New Owner</h4>
         <hr />
@@ -24,11 +24,11 @@
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group d-grid mt-1">
+            <div class="form-group d-grid my-2">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
-        <div class="col-lg-4 text-center">
+        <div class="d-grid my-2">
             <a class="btn btn-secondary btn-sm" asp-action="OwnerList">Back to List</a>
         </div>
     </div>

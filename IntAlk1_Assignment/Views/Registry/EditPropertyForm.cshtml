@@ -38,7 +38,7 @@
         </div>
     </div>
 }
-<div class="row">
+<div class="row mt-3">
     <div class="col-md-4 mx-auto">
         <h4>Edit Property</h4>
         <hr />
@@ -49,29 +49,29 @@
                 <input asp-for="Id" class="form-control" />
                 <span asp-validation-for="Id" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group my-2">
                 <label asp-for="Address" class="control-label"></label>
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group my-2">
                 <label asp-for="OwnerId" class="control-label"></label>
                 @Html.DropDownListFor(m => m.OwnerId, OwnerList)
             </div>
-            <div class="form-group">
+            <div class="form-group my-2">
                 <label asp-for="TenantId" class="control-label"></label>
                 @Html.DropDownListFor(m => m.TenantId, TenantList)
             </div>
-            <div class="form-group">
+            <div class="form-group my-2">
                 <label asp-for="Rent" class="control-label"></label>
                 <input asp-for="Rent" class="form-control" />
                 <span asp-validation-for="Rent" class="text-danger"></span>
             </div>
-            <div class="form-group d-grid">
+            <div class="form-group d-grid my-2">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
-        <div class="d-grid">
+        <div class="d-grid my-2">
             <a asp-action="PropertyList" class="btn btn-secondary btn-sm">Back to List</a>
         </div>
     </div>

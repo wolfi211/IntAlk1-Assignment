@@ -519,8 +519,8 @@ namespace IntAlk1_Assignment.Services
                 "dbo.Properties.Tenant as TenantId, dbo.Tenants.Name as TenantName, " +
                 "dbo.Properties.Rent " +
                 "from ((dbo.Owners " +
-                "inner join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
-                "inner join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
+                "left join dbo.Properties on dbo.Owners.Id = dbo.Properties.Owner) " +
+                "left join dbo.Tenants on dbo.Properties.Tenant = dbo.Tenants.Id) " +
                 "where dbo.Owners.Name like @SearchTerm " +
                 "order by dbo.Owners.Id asc";
 
@@ -546,22 +546,25 @@ namespace IntAlk1_Assignment.Services
                                 Name = (string)reader["OwnerName"] 
                             });
                         }
-                        owners[^1].Properties.Add(new PropertyModel
+                        if (!DBNull.Value.Equals(reader["PropertyId"]))
                         {
-                            Id = (int)reader["PropertyId"],
-                            Address = (string)reader["PropertyAddress"],
-                            Owner = new OwnerModel
+                            owners[^1].Properties.Add(new PropertyModel
                             {
-                                Id = (int)reader["OwnerId"],
-                                Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
-                            {
-                                Id = (int)reader["TenantId"],
-                                Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
+                                Id = (int)reader["PropertyId"],
+                                Address = (string)reader["PropertyAddress"],
+                                Owner = new OwnerModel
+                                {
+                                    Id = (int)reader["OwnerId"],
+                                    Name = (string)reader["OwnerName"]
+                                },
+                                Tenant = new TenantModel
+                                {
+                                    Id = (int)reader["TenantId"],
+                                    Name = (string)reader["TenantName"]
+                                },
+                                Rent = (int)reader["Rent"]
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -582,9 +585,9 @@ namespace IntAlk1_Assignment.Services
                 "dbo.Properties.Owner as OwnerId, dbo.Owners.Name as OwnerName, " +
                 "dbo.Properties.Rent " +
                 "from ((dbo.Tenants " +
-                "inner join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
-                "inner join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
-                "where dbo.Tenant.Name like @SearchTerm " +
+                "left join dbo.Properties on dbo.Tenants.Id = dbo.Properties.Tenant) " +
+                "left join dbo.Owners on dbo.Properties.Owner = dbo.Owners.Id) " +
+                "where dbo.Tenants.Name like @SearchTerm " +
                 "order by dbo.Tenants.Id asc";
 
             using (SqlConnection conn = new(connectionString))
@@ -609,22 +612,25 @@ namespace IntAlk1_Assignment.Services
                                 Name = (string)reader["TenantName"] 
                             });
                         }
-                        tenants[^1].Properties.Add(new PropertyModel
+                        if (!DBNull.Value.Equals(reader["PropertyId"]))
                         {
-                            Id = (int)reader["PropertyId"],
-                            Address = (string)reader["PropertyAddress"],
-                            Owner = new OwnerModel
+                            tenants[^1].Properties.Add(new PropertyModel
                             {
-                                Id = (int)reader["OwnerId"],
-                                Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
-                            {
-                                Id = (int)reader["TenantId"],
-                                Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
+                                Id = (int)reader["PropertyId"],
+                                Address = (string)reader["PropertyAddress"],
+                                Owner = new OwnerModel
+                                {
+                                    Id = (int)reader["OwnerId"],
+                                    Name = (string)reader["OwnerName"]
+                                },
+                                Tenant = new TenantModel
+                                {
+                                    Id = (int)reader["TenantId"],
+                                    Name = (string)reader["TenantName"]
+                                },
+                                Rent = (int)reader["Rent"]
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -665,18 +671,26 @@ namespace IntAlk1_Assignment.Services
                         {
                             Id = (int)reader["PropertyId"],
                             Address = (string)reader["PropertyAddress"],
-                            Owner = new OwnerModel
+                            Rent = (int)reader["Rent"]
+                        });
+                        if (!DBNull.Value.Equals(reader["OwnerId"]))
+                        {
+                            properties[^1].Owner = new OwnerModel
                             {
                                 Id = (int)reader["OwnerId"],
                                 Name = (string)reader["OwnerName"]
-                            },
-                            Tenant = new TenantModel
+                            };
+                            properties[^1].OwnerId = (int)reader["OwnerId"];
+                        }
+                        if (!DBNull.Value.Equals(reader["TenantId"]))
+                        {
+                            properties[^1].Tenant = new TenantModel
                             {
                                 Id = (int)reader["TenantId"],
                                 Name = (string)reader["TenantName"]
-                            },
-                            Rent = (int)reader["Rent"]
-                        });
+                            };
+                            properties[^1].TenantId = (int)reader["TenantId"];
+                        }
                     }
                 }
                 catch (Exception ex)

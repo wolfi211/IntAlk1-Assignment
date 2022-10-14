@@ -387,7 +387,8 @@ namespace IntAlk1_Assignment.Controllers
 
         public IActionResult EditTenant(int id)
         {
-            return RedirectToAction("EditTenantForm", registryDAO.GetTenantById(id));
+            TenantModel tenant = registryDAO.GetTenantById(id);
+            return RedirectToAction("EditTenantForm", tenant);
         }
 
         public IActionResult EditTenantForm(TenantModel tenant)

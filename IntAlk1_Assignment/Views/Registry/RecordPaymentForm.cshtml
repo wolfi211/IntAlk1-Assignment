@@ -1,37 +1,37 @@
 ﻿@model IntAlk1_Assignment.Models.RentModel
 
-<div class="row">
+<div class="row mt-3">
     <div class="col-md-4 mx-auto">
         <h4>RentModel</h4>
         <hr />
         <form action="/Registry/RecordPaymentProcess" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group d-flex">
+            <div class="form-group d-flex my-2">
                 @Html.DisplayNameFor(item => Model.PropertyAddress): 
                 @Html.DisplayFor(item => Model.PropertyAddress)
             </div>
-            <div class="form-group d-flex">
+            <div class="form-group d-flex my-2">
                 @Html.DisplayNameFor(item => Model.TenantName): 
                 @Html.DisplayFor(item => Model.TenantName)
             </div>
-            <div class="form-group d-flex">
+            <div class="form-group d-flex my-2">
                 @Html.DisplayNameFor(item => Model.Year): 
                 @Html.DisplayFor(item => Model.Year)
             </div>
-            <div class="form-group d-flex">
+            <div class="form-group d-flex my-2">
                 @Html.DisplayNameFor(item => Model.Month): 
                 @Html.DisplayFor(item => Model.Month)
             </div>
-            <div class="form-group d-flex">
+            <div class="form-group d-flex my-2">
                 @Html.DisplayNameFor(item => Model.Owed): 
                 @Html.DisplayFor(item => Model.Owed)
             </div>
-            <div class="form-group d-flex">
+            <div class="form-group d-flex my-2">
                 @Html.DisplayNameFor(item => Model.Payed): 
                 @Html.DisplayFor(item => Model.Payed)
             </div>
             <hr />
-            <div class="form-group">
+            <div class="form-group my-2">
                 <label class="control-label">New Payment</label>
                 <input name="payment" class="form-control" />
                 <span asp-validation-for="Payed" class="text-danger"></span>
@@ -47,7 +47,7 @@
                 <input name="month" class="form-control" value="@Model.Month" />
             </div>
             <!-- End of hidden items -->
-            <div class="form-group">
+            <div class="form-group d-grid">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
