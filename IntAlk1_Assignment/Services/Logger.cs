@@ -1,8 +1,4 @@
-﻿using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using System.IO;
-using System.Text;
-
-namespace IntAlk1_Assignment.Services
+﻿namespace IntAlk1_Assignment.Services
 {
     public class Logger
     {
